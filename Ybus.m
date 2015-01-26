@@ -1,0 +1,32 @@
+ybus(busno,busno)=0;Y2(busno)=0;Y1(busno)=0;
+for(icore=1:lineno)
+   bus1=linedata(icore,2);
+   bus2=linedata(icore,3);
+   z=linedata(icore,4)+j*linedata(icore,5);
+   ysh=linedata(icore,6);
+   ts=linedata(icore,7);
+   ts2=ts*ts;
+   y=1/z;
+   ybus(bus1,bus1)=ybus(bus1,bus1)+j*ysh+(1/ts2)*y;
+   ybus(bus2,bus2)=ybus(bus2,bus2)+j*ysh+y;
+   ybus(bus1,bus2)=ybus(bus1,bus2)-(1/ts)*y;
+   ybus(bus2,bus1)=ybus(bus1,bus2);
+   Y=(linedata(icore,5)/ (linedata(icore,4)^2+linedata(icore,5)^2));
+   Y1(bus1)=Y1(bus1)+1/linedata(icore,5);
+   Y1(bus2)=Y1(bus1);
+   Y2(bus1)=Y2(bus1)+(Y+ysh*2)/ts2;
+   Y2(bus2)=Y2(bus2)+Y;
+end
+rc=0;cc=0;
+for(icore2=1:busno)
+   if(bustype(icore2)~=1)
+      rc=rc+1;
+      B1(rc)=Y1(icore2);
+   end
+   if(bustype(icore2)==2)
+      cc=cc+1;
+      B2(cc,cc)=-imag(ybus(icore2,icore2));
+      B2(cc)=Y2(icore2);
+   end
+   ybus(icore2,icore2)=ybus(icore2,icore2)+j*busdata(icore2,10);
+end
